@@ -1,0 +1,36 @@
+name: Sync to plugins repo
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone plugins repo
+        run: |
+          git clone https://x-access-token:${{ secrets.PLUGINS_REPO_TOKEN }}@github.com/ordureconnoisseur/plugins.git plugins-repo
+
+      - name: Copy files
+        run: |
+          mkdir -p plugins-repo/plugins/refract-cards
+          cp -r * plugins-repo/plugins/refract-cards/ 2>/dev/null || true
+          # Strip dev-only dirs so the install zip stays lean. (cp -r * skips
+          # dotfiles like .github, but remove it anyway for safety.)
+          rm -rf plugins-repo/plugins/refract-cards/.github
+          # Drop the cloned plugins-repo that cp -r picked up — leaving it
+          # creates an embedded git reference.
+          rm -rf plugins-repo/plugins/refract-cards/plugins-repo
+
+      - name: Commit and push
+        run: |
+          cd plugins-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add plugins/refract-cards/
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "sync: refract-cards $(git -C .. rev-parse --short HEAD)"
+          git push
