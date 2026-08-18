@@ -1801,6 +1801,25 @@
     /* ── Settings panel (replaces the native plugin settings row) ──────────
        Three on/off switches. Each turns Refract styling on or off for a card
        group; off = the default Stash card for that group. */
+    /* Quiet support line at the foot of the settings panel. Muted, passive,
+       and below every real setting - no banner, no dismiss state. */
+    function supportNote(R) {
+        function link(href, label) {
+            return R.createElement("a", {
+                href: href,
+                target: "_blank",
+                rel: "noopener noreferrer"
+            }, label);
+        }
+        return R.createElement("div", { className: "setting refract-cards-support" },
+            R.createElement("div", { className: "sub-heading" },
+                "Refract Cards is free. ",
+                link("https://github.com/sponsors/ordureconnoisseur", "Sponsor"),
+                " or ",
+                link("https://ko-fi.com/ordureconnoisseur", "Ko-fi"),
+                " if you would like to chip in."));
+    }
+
     function buildSettingsComponent(R) {
         return function RefractCardsSettings() {
             var perf  = R.useState(getPerfOn());
@@ -1850,7 +1869,8 @@
                 R.createElement("div", { className: "setting" },
                     R.createElement("div", { className: "sub-heading" },
                         "Saved per browser, applied instantly. Don't run this alongside the full Refract theme.")
-                )
+                ),
+                supportNote(R)
             );
         };
     }
